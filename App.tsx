@@ -61,14 +61,14 @@ function ProfileScreenStackNavigation() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="ViewProfile" options={{ headerTitle: "", title: "" }} component={ViewProfileScreen} />
-      <Stack.Screen name="EditProfile" options={{ headerTitle: "", title: "" }} component={EditProfileScreen} />
-      <Stack.Screen name="Settings" options={{ headerTitle: "", title: "" }} component={SettingsScreen} />
+      <Stack.Screen name="EditProfile" options={{ headerTitle: "", title: "", headerShown: true }} component={EditProfileScreen} />
+      <Stack.Screen name="Settings" options={{ headerTitle: "", title: "" , headerShown: true}} component={SettingsScreen} />
     </Stack.Navigator>
   );
 }
 function PaymentScreenStackNavigation() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="ShippingDetails" options={{ headerTitle: "", title: "" }} component={ShippingDetailsScreen} />
       <Stack.Screen name="Payment" options={{ headerTitle: "", title: "" }} component={PaymentScreen} />
       <Stack.Screen name="Offer" options={{ headerTitle: "", title: "" }} component={OfferScreen} />
@@ -80,7 +80,7 @@ function PaymentScreenStackNavigation() {
 }
 function TradeScreenStackNavigation() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="ItemsWanted" options={{ headerTitle: "", title: "" }} component={ItemsWantedScreen} />
       <Stack.Screen name="ItemsToTrade" options={{ headerTitle: "", title: "" }} component={ItemsToTradeScreen} />
       <Stack.Screen name="TradeSummary" options={{ headerTitle: "", title: "" }} component={TradeSummaryScreen} />
@@ -96,7 +96,7 @@ export default function App({ navigation, route }: any) {
   return (
     <QueryClientProvider client={new QueryClient()}>
       <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Navigator screenOptions={{ headerShown: true }}>
           <Stack.Screen name="HomeTabs" options={{ headerTitle: "", title: "" }} component={HomeTabs} />
           <Stack.Screen name="PaymentStack" options={{ headerTitle: "", title: "" }} component={PaymentScreenStackNavigation} />
           <Stack.Screen name="TradeStack" options={{ headerTitle: "", title: "" }} component={TradeScreenStackNavigation} />

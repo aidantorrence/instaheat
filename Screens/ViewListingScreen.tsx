@@ -161,6 +161,7 @@ export default function ViewListingScreen({ navigation, route }: any) {
   };
 
   const listing = data?.listings?.find((listing: any) => listing.id === id);
+  console.log(listing?.listingDefects);
 
   function Item({ item }: any) {
     return (
@@ -202,10 +203,15 @@ export default function ViewListingScreen({ navigation, route }: any) {
                   </Text>
                   <Text style={styles.description}>Size: {listing.size}</Text>
                   <Text style={styles.description}>No box</Text>
-                  {listing.condition !== "Brand New" && <Text style={styles.description}>Defects:</Text>}
+                  {listing.condition !== "Brand New" && <>
+                    <Text style={styles.description}>Defects:</Text>
+                    {listing?.listingDefects.map((defect: any, index: number) => {
+                      return <Text style={styles.description} key={index}>{defect}</Text>
+                    })}
+                  </>}
                 </View>
                 <View style={styles.priceCanTradeContainer}>
-                  <Text style={styles.price}>{listing.price}</Text>
+                  <Text style={styles.price}>${listing.price}</Text>
                   {listing.canTrade ? <Image style={styles.canTrade} source={require("../Trade.png")} /> : null}
                 </View>
               </View>

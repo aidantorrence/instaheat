@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Image, View, Text, SafeAreaView, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import { Image, View, Text, SafeAreaView, FlatList, StyleSheet, TouchableOpacity, TextInput } from "react-native";
 import { useQuery } from "react-query";
 import { fetchListings } from "../data/api";
 import { useStore } from "../utils/firebase/useAuthentication";
@@ -7,20 +7,22 @@ import { QueryCache } from "react-query";
 const queryCache = new QueryCache({});
 const defaultProfile = "https://yt3.ggpht.com/-2lcjvQfkrNY/AAAAAAAAAAI/AAAAAAAAAAA/ouxs6ZByypg/s900-c-k-no/photo.jpg";
 import Swiper from "react-native-swiper";
+import { SearchBar } from "@rneui/themed";
+import { useState } from "react";
+import FastImage from "react-native-fast-image";
+import { FlashList } from "@shopify/flash-list";
 
-
-function ListHeader() {
-  return (
-    <View style={styles.title}>
-      <Text style={styles.titleText}>INSTAHEAT</Text>
-    </View>
-  );
-}
 export default function HomeScreen({ navigation }: any) {
+  const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   // AsyncStorage.clear();
   // queryCache.clear();
   const user = useStore((state) => state.user);
-  const { isLoading: isLoadingListings, data: listingsData, error: listingsError } = useQuery(["listings", user?.uid], () => fetchListings(user?.uid));
+  const {
+    isLoading: isLoadingListings,
+    data: listingsData,
+    error: listingsError,
+  } = useQuery(["listings", user?.uid], () => fetchListings(user?.uid));
 
   const handlePress = (listing: any) => {
     navigation.navigate("ViewListing", {
@@ -36,24 +38,39 @@ export default function HomeScreen({ navigation }: any) {
     // });
   };
 
+  const updateSearch = (search: any) => {
+    setSearch(search);
+  };
   function Item({ item }: any) {
     return (
       <Swiper style={{ height: 300 }}>
         {item.images.map((image: any, index: any) => {
           return (
             <TouchableOpacity key={index} onPress={() => handlePress(item)} style={styles.item}>
-              <Image source={{ uri: image }} style={styles.image} />
+              <FastImage source={{ uri: image }} style={styles.image} />
             </TouchableOpacity>
           );
         })}
       </Swiper>
     );
   }
-  
+
   const handleProfilePress = (uid: any) => {
     navigation.navigate("ViewProfile", {
       ownerId: uid,
     });
+  };
+
+  const filteredListings = listingsData?.filter((listing: any) => {
+    if (search === "") {
+      return listing;
+    }
+    return listing.name.toLowerCase().includes(search.toLowerCase());
+  });
+
+  const openSearchbar = () => {
+    setSearch("");
+    setSearchOpen(!searchOpen);
   };
 
   return (
@@ -62,12 +79,26 @@ export default function HomeScreen({ navigation }: any) {
         <Text>Loading</Text>
       ) : (
         <SafeAreaView style={styles.container}>
-          <FlatList
-            data={listingsData}
+          <View style={styles.title}>
+            <Text style={styles.titleText}>INSTAHEAT</Text>
+          </View>
+          {/* <TextInput value={search} onChangeText={updateSearch} style={styles.detailsAnswer} /> */}
+          <View style={styles.searchContainer}>
+            <TouchableOpacity style={styles.searchButton} onPress={openSearchbar}>
+              <FastImage source={require("../assets/Search_Icon.png")} style={styles.searchIcon} />
+            </TouchableOpacity>
+          </View>
+          {searchOpen ? (
+            <SearchBar lightTheme={true} placeholder="Type Here..." onChangeText={updateSearch} value={search} />
+          ) : null}
+          <FlashList
+            horizontal={false}
+            estimatedItemSize={200}
+            data={filteredListings}
             renderItem={({ item }: any) => (
               <>
                 <TouchableOpacity onPress={() => handleProfilePress(item.owner.uid)} style={styles.userInfo}>
-                  <Image source={{ uri: item.owner.userImage || defaultProfile }} style={styles.userImage} />
+                  <FastImage source={{ uri: item.owner.userImage || defaultProfile }} style={styles.userImage} />
                   <Text style={styles.sellerName}>{item.owner.sellerName}</Text>
                 </TouchableOpacity>
                 <Item item={item} />
@@ -79,14 +110,13 @@ export default function HomeScreen({ navigation }: any) {
                     </Text>
                   </View>
                   <View style={styles.priceCanTradeContainer}>
-                    <Text style={styles.price}>{item.price}</Text>
-                    {item.canTrade ? <Image style={styles.canTrade} source={require("../Trade.png")} /> : null}
+                    <Text style={styles.price}>${item.price}</Text>
+                    {item.canTrade ? <FastImage style={styles.canTrade} source={require("../Trade.png")} /> : null}
                   </View>
                 </View>
               </>
             )}
             keyExtractor={(item) => item.id}
-            ListHeaderComponent={ListHeader}
           />
         </SafeAreaView>
       )}
@@ -95,6 +125,15 @@ export default function HomeScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
+  searchContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    margin: 10,
+  },
+  searchIcon: {
+    width: 20,
+    height: 20,
+  },
   container: {
     flex: 1,
     backgroundColor: "white",
@@ -115,10 +154,10 @@ const styles = StyleSheet.create({
     color: "gray",
   },
   nameConditionSizeContainer: {
-    width: "85%",
+    width: "80%",
   },
   priceCanTradeContainer: {
-    width: "15%",
+    width: "20%",
     alignItems: "center",
   },
   price: {
@@ -131,8 +170,8 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   title: {
+    marginVertical: 20,
     alignItems: "center",
-    paddingBottom: 20,
   },
   titleText: {
     fontSize: 32,

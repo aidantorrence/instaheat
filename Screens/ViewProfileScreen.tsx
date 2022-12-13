@@ -10,11 +10,10 @@ import { View, Text, SafeAreaView, Image, Button, StyleSheet, TouchableOpacity, 
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { blockUser, deleteUser, fetchUser } from "../data/api";
 import useAuthentication, { useStore } from "../utils/firebase/useAuthentication";
-import * as WebBrowser from "expo-web-browser";
 
 const defaultProfile = "https://yt3.ggpht.com/-2lcjvQfkrNY/AAAAAAAAAAI/AAAAAAAAAAA/ouxs6ZByypg/s900-c-k-no/photo.jpg";
 
-export default function EditProfileScreen({ navigation, route }: any) {
+export default function ViewProfileScreen({ navigation, route }: any) {
   const ownerId = route?.params?.ownerId;
   const queryClient = useQueryClient();
   const user = useStore((state) => state.user);
